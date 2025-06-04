@@ -11,7 +11,7 @@
  Target Server Version : 80041 (8.0.41)
  File Encoding         : 65001
 
- Date: 04/06/2025 18:50:05
+ Date: 04/06/2025 23:17:15
 */
 
 SET NAMES utf8mb4;
@@ -82,7 +82,7 @@ CREATE TABLE `notification_reads`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `notification_id`(`notification_id` ASC) USING BTREE,
   CONSTRAINT `notification_reads_ibfk_1` FOREIGN KEY (`notification_id`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification_reads
@@ -102,7 +102,7 @@ CREATE TABLE `notification_targets`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `notification_id`(`notification_id` ASC) USING BTREE,
   CONSTRAINT `notification_targets_ibfk_1` FOREIGN KEY (`notification_id`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification_targets
@@ -128,7 +128,7 @@ CREATE TABLE `notifications`  (
   `receiver_scope` tinyint NOT NULL COMMENT '0=全员, 1=部门, 2=指定用户',
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notifications
@@ -138,6 +138,82 @@ INSERT INTO `notifications` VALUES (15, '放假通知', '21321饿', 0, 1, 0, '20
 INSERT INTO `notifications` VALUES (16, '测试', '查韦斯', 0, 1, 2, '2025-06-04 14:29:01');
 INSERT INTO `notifications` VALUES (17, '测试未读', '阿萨的劳动力', 0, 1, 0, '2025-06-04 14:42:55');
 INSERT INTO `notifications` VALUES (18, '1234', '123421', 1, 1, 2, '2025-06-04 16:35:02');
+
+-- ----------------------------
+-- Table structure for project_members
+-- ----------------------------
+DROP TABLE IF EXISTS `project_members`;
+CREATE TABLE `project_members`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `project_id` int NOT NULL COMMENT '所属项目ID',
+  `user_id` bigint NOT NULL COMMENT '成员用户ID',
+  `role_label` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '成员职责（前端/后端/测试等）',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `project_id`(`project_id` ASC) USING BTREE,
+  INDEX `user_id`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `project_members_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目成员表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of project_members
+-- ----------------------------
+INSERT INTO `project_members` VALUES (9, 5, 1, '项目负责人', '2025-06-04 22:49:24');
+INSERT INTO `project_members` VALUES (10, 5, 2, '前端', '2025-06-04 22:49:32');
+
+-- ----------------------------
+-- Table structure for project_tasks
+-- ----------------------------
+DROP TABLE IF EXISTS `project_tasks`;
+CREATE TABLE `project_tasks`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `project_id` int NOT NULL COMMENT '所属项目ID',
+  `user_id` bigint NOT NULL COMMENT '执行人用户ID',
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务标题',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '任务详情',
+  `estimated_start_date` date NULL DEFAULT NULL COMMENT '预估开始时间',
+  `estimated_end_date` date NULL DEFAULT NULL COMMENT '预估结束时间',
+  `actual_end_date` date NULL DEFAULT NULL COMMENT '实际完成日期',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态：0未开始，1进行中，2已完成，3延期',
+  `progress_remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '进度备注（每周更新）',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `project_id`(`project_id` ASC) USING BTREE,
+  INDEX `user_id`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `project_tasks_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `project_tasks_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目任务表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of project_tasks
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for projects
+-- ----------------------------
+DROP TABLE IF EXISTS `projects`;
+CREATE TABLE `projects`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '项目ID',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '项目名称',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '项目描述',
+  `start_date` date NOT NULL COMMENT '项目开始日期',
+  `end_date` date NOT NULL COMMENT '项目结束日期',
+  `leader_id` bigint NULL DEFAULT NULL COMMENT '项目负责人用户ID',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态：0进行中，1已完成，2已延期，3已取消',
+  `doc_file_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '需求文档上传路径',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `leader_id`(`leader_id` ASC) USING BTREE,
+  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`leader_id`) REFERENCES `sys_user` (`user_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of projects
+-- ----------------------------
+INSERT INTO `projects` VALUES (5, 'AI翻译平台', 'AI翻译商业化', '2025-05-30', '2025-06-07', 1, 0, 'http://localhost:3000/uploads/1749047959366-154131547.docx', '2025-06-04 22:17:21', '2025-06-04 22:39:21');
 
 -- ----------------------------
 -- Table structure for sys_dept
@@ -180,7 +256,7 @@ CREATE TABLE `sys_menu`  (
   `create_time` datetime NOT NULL,
   `update_time` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 72 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '菜单权限表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 78 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '菜单权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -218,7 +294,7 @@ INSERT INTO `sys_menu` VALUES (57, 55, '修改账密', 3, '', '', 'account_passw
 INSERT INTO `sys_menu` VALUES (58, 55, '删除账密', 3, '', '', 'account_password:delete', '', 3, 0, '2025-06-03 21:10:41', NULL);
 INSERT INTO `sys_menu` VALUES (59, 55, '查看账密', 3, '', '', 'account_password:view', '', 4, 0, '2025-06-03 21:11:09', '2025-06-03 21:51:27');
 INSERT INTO `sys_menu` VALUES (60, 55, '查看账密列表', 3, '', '', 'account_password:list', '', 5, 0, '2025-06-03 21:51:24', NULL);
-INSERT INTO `sys_menu` VALUES (61, 0, '通知管理', 1, '/notice', '', '', 'Bell', 1, 1, '2025-06-04 11:07:01', NULL);
+INSERT INTO `sys_menu` VALUES (61, 0, '通知管理', 1, '/notice', '', '', 'Bell', 2, 1, '2025-06-04 11:07:01', '2025-06-04 21:46:27');
 INSERT INTO `sys_menu` VALUES (62, 61, '通知列表', 2, '/notice/list', '', '', '', 0, 1, '2025-06-04 11:07:44', '2025-06-04 11:08:07');
 INSERT INTO `sys_menu` VALUES (63, 62, '创建通知/公告', 3, '', '', 'notification:create', '', 0, 0, '2025-06-04 11:08:24', NULL);
 INSERT INTO `sys_menu` VALUES (64, 62, '获取所有通知列表（管理员）', 3, '', '', 'notification:admin', '', 1, 0, '2025-06-04 11:09:08', NULL);
@@ -228,6 +304,12 @@ INSERT INTO `sys_menu` VALUES (68, 61, '我的通知', 2, '/notice/my', '', '', 
 INSERT INTO `sys_menu` VALUES (69, 68, '标记通知为已读', 3, '', '', 'notification:read', '', 0, 0, '2025-06-04 13:59:32', NULL);
 INSERT INTO `sys_menu` VALUES (70, 68, '获取当前用户的通知列表', 3, '', '', 'notification:userlist', '', 1, 0, '2025-06-04 14:00:11', NULL);
 INSERT INTO `sys_menu` VALUES (71, 68, '获取未读通知数量', 3, '', '', 'notification:unread', '', 2, 0, '2025-06-04 14:01:12', NULL);
+INSERT INTO `sys_menu` VALUES (72, 0, '项目管理', 1, '/projects', '', '', 'Folder', 3, 1, '2025-06-04 21:47:01', NULL);
+INSERT INTO `sys_menu` VALUES (73, 72, '项目列表', 2, '/projects/list', '', 'project:view', '', 0, 1, '2025-06-04 21:47:46', NULL);
+INSERT INTO `sys_menu` VALUES (74, 73, '创建新项目', 3, '', '', 'project:create', '', 0, 0, '2025-06-04 21:48:28', NULL);
+INSERT INTO `sys_menu` VALUES (75, 73, '更新项目信息', 3, '', '', 'project:edit', '', 1, 0, '2025-06-04 21:49:06', NULL);
+INSERT INTO `sys_menu` VALUES (76, 73, '删除项目', 3, '', '', 'project:delete', '', 3, 0, '2025-06-04 21:49:23', NULL);
+INSERT INTO `sys_menu` VALUES (77, 73, '项目成员功能', 3, '', '', 'project:manage_members', '', 4, 0, '2025-06-04 21:49:43', '2025-06-04 21:50:17');
 
 -- ----------------------------
 -- Table structure for sys_operation_log
@@ -242,7 +324,7 @@ CREATE TABLE `sys_operation_log`  (
   `ip` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NULL DEFAULT NULL COMMENT 'IP地址',
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 138 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '操作日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 147 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '操作日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_operation_log
@@ -384,6 +466,15 @@ INSERT INTO `sys_operation_log` VALUES (134, 1, 'createMenu', 'POST', '{\"parent
 INSERT INTO `sys_operation_log` VALUES (135, 1, 'createMenu', 'POST', '{\"parentId\":68,\"menuName\":\"获取未读通知数量\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"notification:unread\",\"icon\":\"\",\"sort\":2,\"visible\":0}', '::1', '2025-06-04 14:01:12');
 INSERT INTO `sys_operation_log` VALUES (136, 1, 'assignRoleMenus', 'POST', '{\"roleId\":\"1\",\"menuIds\":[26,54,55,56,57,58,59,60,61,62,63,64,65,67,68,69,70,71,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]}', '::1', '2025-06-04 14:04:37');
 INSERT INTO `sys_operation_log` VALUES (137, 1, 'assignRoleMenus', 'POST', '{\"roleId\":\"2\",\"menuIds\":[26,60,68,69,70,71,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,54,55,61]}', '::1', '2025-06-04 14:49:56');
+INSERT INTO `sys_operation_log` VALUES (138, 1, 'updateMenu', 'PUT', '{\"menuId\":\"61\",\"parentId\":0,\"menuName\":\"通知管理\",\"menuType\":1,\"path\":\"/notice\",\"component\":\"\",\"perms\":\"\",\"icon\":\"Bell\",\"sort\":2,\"visible\":1}', '::1', '2025-06-04 21:46:27');
+INSERT INTO `sys_operation_log` VALUES (139, 1, 'createMenu', 'POST', '{\"menuName\":\"项目管理\",\"menuType\":1,\"path\":\"/projects\",\"component\":\"\",\"perms\":\"\",\"icon\":\"Folder\",\"sort\":3,\"visible\":1}', '::1', '2025-06-04 21:47:01');
+INSERT INTO `sys_operation_log` VALUES (140, 1, 'createMenu', 'POST', '{\"parentId\":72,\"menuName\":\"项目列表\",\"menuType\":2,\"path\":\"/projects/list\",\"component\":\"\",\"perms\":\"project:view\",\"icon\":\"\",\"sort\":0,\"visible\":1}', '::1', '2025-06-04 21:47:46');
+INSERT INTO `sys_operation_log` VALUES (141, 1, 'createMenu', 'POST', '{\"parentId\":73,\"menuName\":\"创建新项目\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"project:create\",\"icon\":\"\",\"sort\":0,\"visible\":0}', '::1', '2025-06-04 21:48:28');
+INSERT INTO `sys_operation_log` VALUES (142, 1, 'createMenu', 'POST', '{\"parentId\":73,\"menuName\":\"更新项目信息\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"project:edit\",\"icon\":\"\",\"sort\":1,\"visible\":0}', '::1', '2025-06-04 21:49:06');
+INSERT INTO `sys_operation_log` VALUES (143, 1, 'createMenu', 'POST', '{\"parentId\":73,\"menuName\":\"删除项目\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"project:delete\",\"icon\":\"\",\"sort\":3,\"visible\":0}', '::1', '2025-06-04 21:49:23');
+INSERT INTO `sys_operation_log` VALUES (144, 1, 'createMenu', 'POST', '{\"parentId\":73,\"menuName\":\"添加项目成员\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"project:manage_members\",\"icon\":\"\",\"sort\":4,\"visible\":0}', '::1', '2025-06-04 21:49:43');
+INSERT INTO `sys_operation_log` VALUES (145, 1, 'updateMenu', 'PUT', '{\"menuId\":\"77\",\"parentId\":73,\"menuName\":\"项目成员功能\",\"menuType\":3,\"path\":\"\",\"component\":\"\",\"perms\":\"project:manage_members\",\"icon\":\"\",\"sort\":4,\"visible\":0}', '::1', '2025-06-04 21:50:17');
+INSERT INTO `sys_operation_log` VALUES (146, 1, 'assignRoleMenus', 'POST', '{\"roleId\":\"1\",\"menuIds\":[26,54,55,56,57,58,59,60,61,62,63,64,65,67,68,69,70,71,72,73,74,75,76,77,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]}', '::1', '2025-06-04 21:50:32');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -417,54 +508,60 @@ CREATE TABLE `sys_role_menu`  (
   `menu_id` bigint NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_role_menu`(`role_id` ASC, `menu_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 732 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '角色菜单权限表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 781 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '角色菜单权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
 -- ----------------------------
-INSERT INTO `sys_role_menu` VALUES (673, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (674, 1, 2);
-INSERT INTO `sys_role_menu` VALUES (675, 1, 3);
-INSERT INTO `sys_role_menu` VALUES (676, 1, 4);
-INSERT INTO `sys_role_menu` VALUES (677, 1, 5);
-INSERT INTO `sys_role_menu` VALUES (678, 1, 6);
-INSERT INTO `sys_role_menu` VALUES (679, 1, 7);
-INSERT INTO `sys_role_menu` VALUES (680, 1, 8);
-INSERT INTO `sys_role_menu` VALUES (681, 1, 9);
-INSERT INTO `sys_role_menu` VALUES (682, 1, 10);
-INSERT INTO `sys_role_menu` VALUES (683, 1, 11);
-INSERT INTO `sys_role_menu` VALUES (684, 1, 12);
-INSERT INTO `sys_role_menu` VALUES (685, 1, 13);
-INSERT INTO `sys_role_menu` VALUES (686, 1, 14);
-INSERT INTO `sys_role_menu` VALUES (687, 1, 15);
-INSERT INTO `sys_role_menu` VALUES (688, 1, 16);
-INSERT INTO `sys_role_menu` VALUES (689, 1, 17);
-INSERT INTO `sys_role_menu` VALUES (690, 1, 18);
-INSERT INTO `sys_role_menu` VALUES (691, 1, 19);
-INSERT INTO `sys_role_menu` VALUES (692, 1, 20);
-INSERT INTO `sys_role_menu` VALUES (693, 1, 21);
-INSERT INTO `sys_role_menu` VALUES (694, 1, 22);
-INSERT INTO `sys_role_menu` VALUES (695, 1, 23);
-INSERT INTO `sys_role_menu` VALUES (696, 1, 24);
-INSERT INTO `sys_role_menu` VALUES (697, 1, 25);
-INSERT INTO `sys_role_menu` VALUES (655, 1, 26);
-INSERT INTO `sys_role_menu` VALUES (656, 1, 54);
-INSERT INTO `sys_role_menu` VALUES (657, 1, 55);
-INSERT INTO `sys_role_menu` VALUES (658, 1, 56);
-INSERT INTO `sys_role_menu` VALUES (659, 1, 57);
-INSERT INTO `sys_role_menu` VALUES (660, 1, 58);
-INSERT INTO `sys_role_menu` VALUES (661, 1, 59);
-INSERT INTO `sys_role_menu` VALUES (662, 1, 60);
-INSERT INTO `sys_role_menu` VALUES (663, 1, 61);
-INSERT INTO `sys_role_menu` VALUES (664, 1, 62);
-INSERT INTO `sys_role_menu` VALUES (665, 1, 63);
-INSERT INTO `sys_role_menu` VALUES (666, 1, 64);
-INSERT INTO `sys_role_menu` VALUES (667, 1, 65);
-INSERT INTO `sys_role_menu` VALUES (668, 1, 67);
-INSERT INTO `sys_role_menu` VALUES (669, 1, 68);
-INSERT INTO `sys_role_menu` VALUES (670, 1, 69);
-INSERT INTO `sys_role_menu` VALUES (671, 1, 70);
-INSERT INTO `sys_role_menu` VALUES (672, 1, 71);
+INSERT INTO `sys_role_menu` VALUES (756, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (757, 1, 2);
+INSERT INTO `sys_role_menu` VALUES (758, 1, 3);
+INSERT INTO `sys_role_menu` VALUES (759, 1, 4);
+INSERT INTO `sys_role_menu` VALUES (760, 1, 5);
+INSERT INTO `sys_role_menu` VALUES (761, 1, 6);
+INSERT INTO `sys_role_menu` VALUES (762, 1, 7);
+INSERT INTO `sys_role_menu` VALUES (763, 1, 8);
+INSERT INTO `sys_role_menu` VALUES (764, 1, 9);
+INSERT INTO `sys_role_menu` VALUES (765, 1, 10);
+INSERT INTO `sys_role_menu` VALUES (766, 1, 11);
+INSERT INTO `sys_role_menu` VALUES (767, 1, 12);
+INSERT INTO `sys_role_menu` VALUES (768, 1, 13);
+INSERT INTO `sys_role_menu` VALUES (769, 1, 14);
+INSERT INTO `sys_role_menu` VALUES (770, 1, 15);
+INSERT INTO `sys_role_menu` VALUES (771, 1, 16);
+INSERT INTO `sys_role_menu` VALUES (772, 1, 17);
+INSERT INTO `sys_role_menu` VALUES (773, 1, 18);
+INSERT INTO `sys_role_menu` VALUES (774, 1, 19);
+INSERT INTO `sys_role_menu` VALUES (775, 1, 20);
+INSERT INTO `sys_role_menu` VALUES (776, 1, 21);
+INSERT INTO `sys_role_menu` VALUES (777, 1, 22);
+INSERT INTO `sys_role_menu` VALUES (778, 1, 23);
+INSERT INTO `sys_role_menu` VALUES (779, 1, 24);
+INSERT INTO `sys_role_menu` VALUES (780, 1, 25);
+INSERT INTO `sys_role_menu` VALUES (732, 1, 26);
+INSERT INTO `sys_role_menu` VALUES (733, 1, 54);
+INSERT INTO `sys_role_menu` VALUES (734, 1, 55);
+INSERT INTO `sys_role_menu` VALUES (735, 1, 56);
+INSERT INTO `sys_role_menu` VALUES (736, 1, 57);
+INSERT INTO `sys_role_menu` VALUES (737, 1, 58);
+INSERT INTO `sys_role_menu` VALUES (738, 1, 59);
+INSERT INTO `sys_role_menu` VALUES (739, 1, 60);
+INSERT INTO `sys_role_menu` VALUES (740, 1, 61);
+INSERT INTO `sys_role_menu` VALUES (741, 1, 62);
+INSERT INTO `sys_role_menu` VALUES (742, 1, 63);
+INSERT INTO `sys_role_menu` VALUES (743, 1, 64);
+INSERT INTO `sys_role_menu` VALUES (744, 1, 65);
+INSERT INTO `sys_role_menu` VALUES (745, 1, 67);
+INSERT INTO `sys_role_menu` VALUES (746, 1, 68);
+INSERT INTO `sys_role_menu` VALUES (747, 1, 69);
+INSERT INTO `sys_role_menu` VALUES (748, 1, 70);
+INSERT INTO `sys_role_menu` VALUES (749, 1, 71);
+INSERT INTO `sys_role_menu` VALUES (750, 1, 72);
+INSERT INTO `sys_role_menu` VALUES (751, 1, 73);
+INSERT INTO `sys_role_menu` VALUES (752, 1, 74);
+INSERT INTO `sys_role_menu` VALUES (753, 1, 75);
+INSERT INTO `sys_role_menu` VALUES (754, 1, 76);
+INSERT INTO `sys_role_menu` VALUES (755, 1, 77);
 INSERT INTO `sys_role_menu` VALUES (704, 2, 1);
 INSERT INTO `sys_role_menu` VALUES (705, 2, 2);
 INSERT INTO `sys_role_menu` VALUES (706, 2, 3);
@@ -525,7 +622,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '$2b$10$gGD6U4DSjGV76WSmReFURekr6RcfIPPq2Es64/b5c7jRmhrN93PfS', '汪义强', NULL, '3467520359@qq.com', '19360256621', 5, 1, '', '2025-06-04 14:50:50', '2025-05-22 14:52:33', '2025-05-24 10:41:36');
+INSERT INTO `sys_user` VALUES (1, 'admin', '$2b$10$gGD6U4DSjGV76WSmReFURekr6RcfIPPq2Es64/b5c7jRmhrN93PfS', '汪义强', NULL, '3467520359@qq.com', '19360256621', 5, 1, '', '2025-06-04 22:04:18', '2025-05-22 14:52:33', '2025-05-24 10:41:36');
 INSERT INTO `sys_user` VALUES (2, 'zhang', '$2b$10$Dcq3Sz61PwUauTTsSKPJSeA0Ck4FNdK7TN3vw4IdHRhSaW1nWqlM2', '张昕', NULL, 'wangyiqiang59@gmail.com', '18555444800', 1, 1, NULL, '2025-06-04 14:50:08', '2025-05-23 17:43:44', '2025-05-23 18:44:12');
 
 -- ----------------------------

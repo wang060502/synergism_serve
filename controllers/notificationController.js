@@ -5,7 +5,6 @@ exports.createNotification = async (req, res) => {
     try {
         const { title, content, type, receiver_scope, targets } = req.body;
         const creator_id = req.user.userId;
-        console.log('前端传入 req.body:', req.body);
         if (!creator_id) {
             return res.status(401).json({
                 code: 401,
@@ -24,7 +23,6 @@ exports.createNotification = async (req, res) => {
         if (receiver_scope === 0) { // 全员
             // 获取所有用户ID
             const users = await db.query('SELECT user_id FROM sys_user');
-            console.log('db.query("SELECT user_id FROM sys_user") 返回:', users);
             for (const user of users) {
                 await db.query(
                     'INSERT INTO notification_targets (notification_id, target_type, target_id) VALUES (?, ?, ?)',
@@ -122,8 +120,6 @@ exports.getNotifications = async (req, res) => {
             LIMIT ${pageSizeNum} OFFSET ${offsetNum}
         `;
 
-        console.log('SQL:', query);
-        console.log('params:', params);
 
         const notifications = await db.query(query, params);
 

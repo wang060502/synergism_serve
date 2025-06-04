@@ -17,8 +17,27 @@ const storage = multer.diskStorage({
 // 文件过滤器
 const fileFilter = (req, file, cb) => {
   // 允许的文件类型
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/pdf',
+    'application/msword', // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+    'application/vnd.ms-excel', // .xls
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+    'application/vnd.ms-powerpoint', // .ppt
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+    'application/octet-stream' // 兼容部分上传
+  ];
   if (allowedTypes.includes(file.mimetype)) {
+    // 对于 application/octet-stream，进一步判断扩展名
+    if (
+      file.mimetype === 'application/octet-stream' &&
+      !['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(path.extname(file.originalname).toLowerCase())
+    ) {
+      return cb(new Error('不支持的文件类型！'), false);
+    }
     cb(null, true);
   } else {
     cb(new Error('不支持的文件类型！'), false);
