@@ -7,6 +7,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const deptRoutes = require('./routes/deptRoutes');
 const operationLogRoutes = require('./routes/operationLogRoutes');
 const accountPasswordRoutes = require('./routes/accountPasswordRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 const path = require('path');
@@ -42,6 +43,7 @@ app.use('/api/files', uploadRoutes);
 app.use('/api/depts', deptRoutes);
 app.use('/api/operation-logs', operationLogRoutes);
 app.use('/api/account-passwords', accountPasswordRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // 基础路由
 app.get('/', (req, res) => {
